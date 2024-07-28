@@ -2,12 +2,13 @@ import dbConnect from "../../../lib/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 
 import Otp from "../../../models/otp";
+import User from "../../../models/user";
 
 dbConnect();
 export async function POST(request: NextRequest) {
   try {
     const reqBody = await request.json();
-    const { email, code }: any = reqBody;
+    const { email, code, password }: any = reqBody;
 
     let data = await Otp.findOne({ email, code });
 
@@ -24,6 +25,11 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         );
       } else {
+        let userData = await User.findOne({ email });
+        if (userData) {
+          userData.password = password;
+          await userData.save();
+        }
         await Otp.deleteMany({ email });
         return NextResponse.json(
           {
