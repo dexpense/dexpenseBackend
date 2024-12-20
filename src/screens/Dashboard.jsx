@@ -39,7 +39,7 @@ const Dashboard = () => {
       <p>In Case Of Facing Any Difficulty Email Me</p>
       <p>trackerexpense0@gmail.com</p>
       <p>
-        All Your Data Stored In App's Database is Secured in Encrypted Format
+        All Your Data Stored In App&#8217;s Database is Secured in Encrypted Format
         with Strict Policy. No Personal Data will be shared to Anybody.
       </p>
     </div>

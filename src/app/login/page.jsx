@@ -171,6 +171,7 @@ const Login = () => {
       });
       router.push("/home");
     }
+    //eslint-disable-next-line
   }, []);
   return (
     <div className="container my-3">

@@ -83,7 +83,7 @@ export default function Dashboard() {
         <h6>In Case Of Facing Any Difficulty Email Me</h6>
         <h6>maidul365@gmail.com</h6>
         <h6>
-          All Your Data Stored In Apps Database is Secured in Encrypted Format
+          All Your Data Stored In App&#8217;s Database is Secured in Encrypted Format
           with Strict Policy. No Personal Data will be shared to Anybody.
         </h6>
       </div>
