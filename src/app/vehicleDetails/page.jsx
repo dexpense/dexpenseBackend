@@ -26,7 +26,7 @@ export default function VehicleDetails() {
           }}
         >
           <div>
-            <h5>{stateObject?.bikeName.toUpperCase().slice(0, 15)}</h5>
+            <h5>{stateObject?.bikeName?.toUpperCase()?.slice(0, 15)}</h5>
             <h6>Milage: {stateObject?.milage} KM/LITRE</h6>
             <h6>Petrol Added: {stateObject?.petrolAdded} KM</h6>
             <h6>Total Run: {stateObject?.totalRun} KM</h6>
@@ -36,7 +36,7 @@ export default function VehicleDetails() {
             </h6>
             <h6>service Date: {formatDateAndTime(stateObject?.serviceDate)}</h6>
             <h6>Fulled On: {formatDateAndTime(stateObject?.date)}</h6>
-            <h6>Service Cost: ₹ {IndianFormat(stateObject.serviceCost)}</h6>
+            <h6>Service Cost: ₹ {IndianFormat(stateObject?.serviceCost)}</h6>
           </div>
           <div>
             <Image
