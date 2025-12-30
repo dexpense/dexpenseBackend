@@ -11,6 +11,7 @@ export default function Home() {
   const el = React.useRef(null);
   const [width, setWidth] = useState(100);
   const details = getCookie("uid");
+  const LOGGEDAT = getCookie("info");
   let userdetails = {
     USER: {
       name: "",
@@ -43,10 +44,18 @@ export default function Home() {
     };
   }, []);
   useEffect(() => {
-    if (userdetails.USER.email === "") {
+    if (userdetails?.USER?.email === "") {
       router.push("/login");
     } else {
-      setState(userdetails);
+      setState({
+        USER: {
+          name: userdetails?.USER?.name,
+          username: userdetails?.USER?.username,
+          email: userdetails?.USER?.email,
+          id: userdetails?.USER?.id,
+        },
+        LOGGEDAT: LOGGEDAT,
+      });
       router.push("/home");
     }
   }, []);

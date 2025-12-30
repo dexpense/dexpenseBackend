@@ -1,3 +1,11 @@
+import bcrypt from "bcryptjs";
+export const comparePassword = (userPassword, serverPassword) => {
+  let match = bcrypt.compareSync(userPassword, serverPassword);
+
+  return match;
+};
+export const encryptPassword = async (password) =>
+  await bcrypt.hashSync(password, 10);
 export function round2dec(value) {
   if (value % 1 !== 0) {
     return Number(Math.round(value + "e" + 2) + "e-" + 2).toFixed(2);
@@ -78,11 +86,15 @@ export function NumInWords(number) {
 }
 
 export function titleCase(str) {
-  str = str.toLowerCase().split(" ");
-  for (var i = 0; i < str.length; i++) {
-    str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
+  if (str) {
+    str = str?.toLowerCase().split(" ");
+    for (var i = 0; i < str.length; i++) {
+      str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
+    }
+    return str.join(" ");
+  } else {
+    return "";
   }
-  return str.join(" ");
 }
 
 export function findEmptyValues(obj) {
@@ -150,7 +162,48 @@ export const RoundTo = (number, multiple) => {
     return number + multiple - remainder;
   }
 };
+export const CalculateIncomeTax = (totalTaxableIncome) => {
+  return totalTaxableIncome > 1000000
+    ? Math.round(12500 + 100000 + ((totalTaxableIncome - 1000000) * 30) / 100)
+    : totalTaxableIncome > 500000
+    ? Math.round(12500 + ((totalTaxableIncome - 500000) * 20) / 100)
+    : totalTaxableIncome > 250000
+    ? Math.round(((totalTaxableIncome - 250000) * 5) / 100)
+    : totalTaxableIncome < 250000
+    ? 0
+    : 0;
+};
+export function CalculateNewIncomeTax(taxableIncome) {
+  // Tax slabs for the new tax regime in India (FY 2023-24)
+  const taxSlabs = [
+    { slab: 300000, rate: 0 },
+    { slab: 700000, rate: 0.05 },
+    { slab: 1000000, rate: 0.1 },
+    { slab: 1200000, rate: 0.15 },
+    { slab: 1500000, rate: 0.2 },
+    { slab: Infinity, rate: 0.3 }, // Infinity for any income above 15 lakhs
+  ];
 
+  let incomeTax = 0;
+  let remainingIncome = taxableIncome;
+
+  // Iterate through the tax slabs
+  for (let i = 0; i < taxSlabs.length; i++) {
+    const slab = taxSlabs[i];
+    const taxableAmount = Math.min(
+      remainingIncome,
+      slab.slab - (i > 0 ? taxSlabs[i - 1].slab : 0)
+    );
+    incomeTax += taxableAmount * slab.rate;
+    remainingIncome -= taxableAmount;
+
+    if (remainingIncome <= 0) {
+      break; // No more income to tax
+    }
+  }
+
+  return incomeTax;
+}
 export function GetMonthName(monthNumber) {
   monthNumber = monthNumber < 0 ? 11 : monthNumber;
   var months = [
@@ -203,15 +256,25 @@ export const getSubmitDateInput = (date) => {
     return `${day}-${month}-${year}`;
   }
 };
-export const getSubmitDateSInput = (date) => {
-  if (date) {
-    let data = date.split("/");
-    let day = data[1];
-    let month = data[0];
-    let year = data[2];
-    return `${day}-${month}-${year}`;
-  }
-};
+export function formatDate(timestamp) {
+  const input = !isNaN(timestamp) ? parseInt(timestamp, 10) : timestamp;
+  const date = new Date(input);
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+}
+export function formatDateAndTime(timestamp) {
+  const input = !isNaN(timestamp) ? parseInt(timestamp, 10) : timestamp;
+  const date = new Date(input);
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  const hours = date.getHours() % 12 || 12; // Handle 0 (midnight) as 12
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const ampm = date.getHours() >= 12 ? "PM" : "AM";
+  return `${day}-${month}-${year} At ${hours}:${minutes} ${ampm}`;
+}
 export const getSubmitDateSlashInput = (date) => {
   if (date) {
     let data = date.split("/");
@@ -243,17 +306,21 @@ export const todayInString = () => {
 };
 
 export const IndianFormat = (x) => {
-  x = x.toString();
-  var afterPoint = "";
-  if (x.indexOf(".") > 0) afterPoint = x.substring(x.indexOf("."), x.length);
-  x = Math.floor(x);
-  x = x.toString();
-  var lastThree = x.substring(x.length - 3);
-  var otherNumbers = x.substring(0, x.length - 3);
-  if (otherNumbers !== "") lastThree = "," + lastThree;
-  return (
-    otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree + afterPoint
-  );
+  if (x !== undefined) {
+    x = x.toString();
+    var afterPoint = "";
+    if (x.indexOf(".") > 0) afterPoint = x.substring(x.indexOf("."), x.length);
+    x = Math.floor(x);
+    x = x.toString();
+    var lastThree = x.substring(x.length - 3);
+    var otherNumbers = x.substring(0, x.length - 3);
+    if (otherNumbers !== "") lastThree = "," + lastThree;
+    return (
+      otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") +
+      lastThree +
+      afterPoint
+    );
+  } else return;
 };
 
 export function INR(input) {
@@ -417,6 +484,7 @@ export const finMonths = [
   "March",
 ];
 export const getMonthDays = [31, 30, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
 export const generateID = () => {
   const capitalAlphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const numbers = "0123456789";
@@ -470,12 +538,14 @@ export function compareObjects(x, y) {
 }
 
 export const DateValueToSring = (dateValue) => {
-  let date = new Date(dateValue);
-  return `${date.getDate()}-${date.getMonth()}-${date.getFullYear()} At ${
-    date.getHours() > 12 ? date.getHours() - 12 : date.getHours()
-  }:${date.getMinutes()}:${date.getSeconds()} ${
-    date.getHours() > 12 ? "PM" : "AM"
-  }`;
+  if (dateValue) {
+    let date = new Date(dateValue);
+    return `${date.getDate()}-${date.getMonth()}-${date.getFullYear()} At ${
+      date.getHours() > 12 ? date.getHours() - 12 : date.getHours()
+    }:${date.getMinutes()}:${date.getSeconds()} ${
+      date.getHours() > 12 ? "PM" : "AM"
+    }`;
+  }
 };
 export function removeDuplicates(books) {
   // Create an array of objects
@@ -575,6 +645,22 @@ export const getServiceLife = (date) => {
     return `${months} months`;
   }
 };
+export const getRetirementLife = (doj, dor) => {
+  if (!doj || !dor) return "";
+  let joiningDate = Date.parse(getCurrentDateInput(doj));
+  let retirementDate = Date.parse(getCurrentDateInput(dor));
+  let yearInMillis = 31556926000;
+  let monthinMillis = 2629800000;
+  let age = Math.floor((retirementDate - joiningDate) / yearInMillis);
+  let months = Math.floor(
+    ((retirementDate - joiningDate) % yearInMillis) / monthinMillis
+  );
+  if (age) {
+    return `${age} years ${months} months`;
+  } else {
+    return `${months} months`;
+  }
+};
 export const filterArrayExtraItems = (x, y) => {
   return x.filter((item) => !y.includes(item));
 };
@@ -616,3 +702,42 @@ export const createDownloadLink = (myData, fileName) => {
 export function round5(x) {
   return Math.ceil(x / 5) * 5;
 }
+
+export const setInputNumberMaxLength = (value, maxLength) => {
+  if (value) {
+    if (value.length > maxLength) {
+      return value.slice(0, maxLength);
+    } else {
+      return value;
+    }
+  }
+};
+
+export const btnArray = [
+  { label: "Add", color: "success" },
+  { label: "Edit", color: "warning" },
+  { label: "Delete", color: "danger" },
+  { label: "View", color: "info" },
+  { label: "Print", color: "primary" },
+  { label: "Export", color: "dark" },
+  { label: "Import", color: "light" },
+  { label: "Save", color: "secondary" },
+  { label: "Reset", color: "light" },
+  { label: "Search", color: "info" },
+  { label: "Refresh", color: "warning" },
+  { label: "Download", color: "primary" },
+  { label: "Upload", color: "success" },
+  { label: "Send", color: "info" },
+  { label: "Receive", color: "warning" },
+  { label: "Forward", color: "danger" },
+];
+
+export const sortMonthwise = (arr) => {
+  return arr.sort((a, b) => {
+    // Assuming 'month' is the key in the object which contains the month name
+    const monthA = months.indexOf(a.month);
+    const monthB = months.indexOf(b.month);
+
+    return monthA - monthB;
+  });
+};

@@ -4,9 +4,10 @@ import {
   decryptObjData,
   encryptObjData,
   getCookie,
+  setCookie,
 } from "../../modules/encryption";
 import { useGlobalContext } from "../../context/Store";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { v4 as uuid } from "uuid";
 import { useRouter } from "next/navigation";
 import { firestore, firbaseAuth } from "../../context/FirbaseContext";
@@ -44,16 +45,7 @@ const Login = () => {
         // if (data.password === inputField.password) {
         if (compare(inputField.password, data.password)) {
           setLoader(false);
-          toast.success("Congrats! You are Logined Successfully!", {
-            position: "top-right",
-            autoClose: 1500,
-            hideProgressBar: false,
-            closeOnClick: true,
-
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
+          toast.success("Congrats! You are Logined Successfully!");
           setState({
             USER: {
               name: data.name,
@@ -61,46 +53,21 @@ const Login = () => {
               email: data.email,
               id: data.id,
             },
+            LOGGEDAT: Date.now(),
           });
           encryptObjData("uid", data, 10080);
+          setCookie("info", Date.now(), 10080);
           router.push("/home");
         } else {
           setLoader(false);
-          toast.error("Wrong Password!", {
-            position: "top-right",
-            autoClose: 1500,
-            hideProgressBar: false,
-            closeOnClick: true,
-
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
+          toast.error("Wrong Password!");
         }
       } else {
         setLoader(false);
-        toast.error("Invalid Username!", {
-          position: "top-right",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
+        toast.error("Invalid Username!");
       }
     } else {
-      toast.error("Form Is Invalid", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.error("Form Is Invalid");
     }
   };
 
@@ -148,6 +115,7 @@ const Login = () => {
     router.push("/signup");
   };
   const details = getCookie("uid");
+  const LOGGEDAT = getCookie("info");
   let userdetails = {
     USER: {
       name: "",
@@ -168,6 +136,7 @@ const Login = () => {
           email: userdetails.email,
           id: userdetails.id,
         },
+        LOGGEDAT: LOGGEDAT,
       });
       router.push("/home");
     }
@@ -175,19 +144,7 @@ const Login = () => {
   }, []);
   return (
     <div className="container my-3">
-      <ToastContainer
-        position="top-right"
-        autoClose={1500}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss={false}
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-      {loader ? <Loader /> : null}
+      {loader && <Loader />}
       <h1>Login</h1>
       {/* Login form */}
       <div className="mx-auto col-md-6">

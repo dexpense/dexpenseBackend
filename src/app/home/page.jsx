@@ -15,8 +15,8 @@ import { useRouter } from "next/navigation";
 const Home = () => {
   const { state, setState, activeTab, setActiveTab } = useGlobalContext();
   const router = useRouter();
-  const user = getCookie("uid");
   const details = getCookie("uid");
+  const LOGGEDAT = getCookie("info");
   let userdetails = {
     USER: {
       name: "",
@@ -37,6 +37,7 @@ const Home = () => {
           email: userdetails.email,
           id: userdetails.id,
         },
+        LOGGEDAT: LOGGEDAT,
       });
     } else {
       router.push("/login");
@@ -71,7 +72,7 @@ const Home = () => {
             activeTab !== 2 ? "btn-sm" : "text-decoration-underline"
           } m-2`}
         >
-          <i class="bi bi-wallet-fill"> Accounts</i>
+          <i className="bi bi-wallet-fill"> Accounts</i>
         </button>
         <button
           type="button"
